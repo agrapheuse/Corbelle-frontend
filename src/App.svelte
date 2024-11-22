@@ -1,47 +1,45 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  import { onMount } from 'svelte';
+  import { fetchArtworks } from './lib/api';
+
+  let artwork: { id: string, title: string; description: string; url: string }[] = [];
+  let error = '';
+
+  onMount(async () => {
+    try {
+      artwork = await fetchArtworks();
+    } catch (err) {
+      error = 'Failed to fetch artworks';
+    }
+  });
 </script>
 
-<main>
-  <div>
-    <a href="https://vite.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
-  </div>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
-</main>
-
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+  .pictures {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+  .picture {
+    text-align: center;
   }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
   }
 </style>
+
+{#if error}
+  <p class="error">{error}</p>
+{/if}
+
+<div class="pictures">
+  {#each artwork as { title, description, url }}
+    <div class="picture">
+      <img src={url} alt={title} />
+      <h3>{title}</h3>
+      <p>{description}</p>
+    </div>
+  {/each}
+</div>
